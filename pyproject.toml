@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edview"
+version = "0.1.0"
+description = "GUI software for viewing EDXD/EDDT data processed by Algodif."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [{name = "Nghia Vo", email = "nvo@bnl.gov"}]
+keywords = ["EDXD", "EDDT", "Energy-dispersive X-ray diffraction",
+            "Data viewer", "GeRM detector"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "algodif>=1.1.0",
+    "numpy",
+    "h5py",
+    "pillow",
+    "PySide6",
+    "pyqtgraph",
+]
+
+[project.scripts]
+edview = "edview.main:main"
+
+[tool.setuptools.packages.find]
+include = ["edview", "edview.*"]
