@@ -2,9 +2,12 @@ import sys
 import signal
 import argparse
 import platform
-import warnings
+import multiprocessing
 from PySide6.QtCore import QTimer
 from edview.lib.interactions import EdviewInteraction
+from edview.lib.rendering import GL_AVAILABLE, GL_ERROR
+import edview.lib.utilities as util
+
 
 exit_printed = False
 
@@ -20,6 +23,7 @@ def print_exit_message(*_args):
 
 
 def main():
+    multiprocessing.freeze_support()
     parser = argparse.ArgumentParser(description="EDView: viewer of EDXD "
                                                  "data processed by Algodif")
     parser.add_argument("-b", dest="base_folder", default=None,
@@ -29,16 +33,22 @@ def main():
         import ctypes
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
             "algodif.edview")
-    warnings.filterwarnings("ignore", message="Covariance of the parameters "
-                                              "could not be estimated")
+    util.suppress_warnings()
+    if not GL_AVAILABLE:
+        print(f"Warning: 3D views are disabled ({GL_ERROR}). The 4D viewer "
+              f"and the multiple-lines viewer use 2D plots instead. Install "
+              f"PyOpenGL to enable them: python -m pip install PyOpenGL",
+              file=sys.stderr, flush=True)
     controller = EdviewInteraction(args.base_folder)
     controller.app.aboutToQuit.connect(print_exit_message)
 
     def _handle_signal(_signum=None, _frame=None):
+        # Quitting stops the calculations and closes the files (see
+        # EdviewInteraction.shutdown)
         print_exit_message()
         controller.app.quit()
 
-    for name in ("SIGINT", "SIGTERM"):
+    for name in ("SIGINT", "SIGTERM", "SIGBREAK"):
         sig = getattr(signal, name, None)
         if sig is not None:
             signal.signal(sig, _handle_signal)
@@ -49,6 +59,7 @@ def main():
     try:
         sys.exit(controller.run())
     except KeyboardInterrupt:
+        controller.shutdown()
         print_exit_message()
         sys.exit(0)
 

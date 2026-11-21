@@ -1,0 +1,47 @@
+name: Publish to Conda
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish_conda:
+    name: Build and Upload to Conda
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          miniforge-version: "latest"
+          auto-activate: true
+          activate-environment: ""
+          channels: conda-forge
+          channel-priority: strict
+          conda-remove-defaults: true
+
+      - name: Install Conda Build Tools
+        run: |
+          conda install -n base -y conda-build anaconda-client
+          conda build --version
+
+      # algodif is published on the algotom channel
+      - name: Build Conda Package
+        run: |
+          conda build -c algotom -c conda-forge recipe/
+
+      - name: Get Package Path
+        run: |
+          echo "PACKAGE_PATH=$(conda build --output recipe/)" >> "$GITHUB_ENV"
+
+      - name: Upload to Anaconda Cloud
+        env:
+          ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
+        run: |
+          anaconda upload --user algotom --force "$PACKAGE_PATH"

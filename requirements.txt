@@ -1,0 +1,8 @@
+#python>=3.10
+algodif>=1.1.0
+numpy
+h5py
+pillow
+pyqtgraph
+PySide6
+PyOpenGL

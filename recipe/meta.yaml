@@ -1,0 +1,45 @@
+{% set name = "edview" %}
+{% set version = "1.0.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation"
+  noarch: python
+  entry_points:
+    - edview = edview.main:main
+
+requirements:
+  host:
+    - python >=3.10
+    - pip
+    - setuptools >=77
+    - wheel
+  run:
+    - python >=3.10
+    - algodif >=1.1.0
+    - numpy
+    - h5py
+    - pillow
+    - pyside6
+    - pyqtgraph
+    - pyopengl
+
+test:
+  imports:
+    - edview
+    - edview.lib.utilities
+  requires:
+    - pip
+
+about:
+  home: https://github.com/algodif/edview
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: GUI software for viewing EDXD/EDDT data processed by Algodif

@@ -1,0 +1,75 @@
+name: Publish to PyPI and Conda
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish_pypi:
+    name: Build and Upload to PyPI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools wheel twine build
+
+      - name: Build package
+        run: python -m build
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: "__token__"
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: twine upload dist/*
+
+  publish_conda:
+    name: Build and Upload to Conda
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          miniforge-version: "latest"
+          auto-activate: true
+          activate-environment: ""
+          channels: conda-forge
+          channel-priority: strict
+          conda-remove-defaults: true
+
+      - name: Install Conda Build Tools
+        run: |
+          conda install -n base -y conda-build anaconda-client
+          conda build --version
+
+      # algodif is published on the algotom channel
+      - name: Build Conda Package
+        run: |
+          conda build -c algotom -c conda-forge recipe/
+
+      - name: Get Package Path
+        run: |
+          echo "PACKAGE_PATH=$(conda build --output recipe/)" >> "$GITHUB_ENV"
+
+      - name: Upload to Anaconda Cloud
+        env:
+          ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
+        run: |
+          anaconda upload --user algotom --force "$PACKAGE_PATH"
