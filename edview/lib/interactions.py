@@ -21,7 +21,6 @@ from PySide6.QtWidgets import (QApplication, QMessageBox, QFileDialog,
                                QAbstractItemView, QListWidgetItem)
 
 import algodif.io.loadersaver as losa
-
 import edview.lib.rendering as ren
 import edview.lib.utilities as util
 
@@ -661,7 +660,7 @@ class BrowserTab(BaseLogic, ren.BrowserTabUI):
         if item:
             try:
                 stat = os.stat(path)
-                # Creation time where the OS records it, else modification
+                # Creation time when the OS records it, else modification
                 created = getattr(stat, "st_birthtime", None)
                 label = "Created" if created else "Modified"
                 date = datetime.fromtimestamp(created or stat.st_mtime)

@@ -24,7 +24,7 @@ def print_exit_message(*_args):
 
 def main():
     multiprocessing.freeze_support()
-    parser = argparse.ArgumentParser(description="EDView: viewer of EDXD "
+    parser = argparse.ArgumentParser(description="EDView: viewer of EDDT "
                                                  "data processed by Algodif")
     parser.add_argument("-b", dest="base_folder", default=None,
                         help="Base folder of the data browser")
@@ -43,8 +43,6 @@ def main():
     controller.app.aboutToQuit.connect(print_exit_message)
 
     def _handle_signal(_signum=None, _frame=None):
-        # Quitting stops the calculations and closes the files (see
-        # EdviewInteraction.shutdown)
         print_exit_message()
         controller.app.quit()
 
@@ -52,7 +50,6 @@ def main():
         sig = getattr(signal, name, None)
         if sig is not None:
             signal.signal(sig, _handle_signal)
-    # Let Python handle Ctrl+C while the Qt event loop runs
     timer = QTimer()
     timer.start(250)
     timer.timeout.connect(lambda: None)

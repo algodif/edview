@@ -21,7 +21,7 @@ import algodif.prep.preprocessing as prep
 import algodif.post.postprocessing as post
 import algodif.util.utility as autil
 
-APP_NAME = "EDView - EDXD data viewer"
+APP_NAME = "EDView - EDDT data viewer"
 FONT_SIZE = 14
 MAIN_WIN_RATIO = 0.9
 # Size of child windows relative to the main window
